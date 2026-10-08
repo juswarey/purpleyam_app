@@ -1,56 +1,55 @@
-# Welcome to your Expo app 👋
+# Purple Yam – Custom Cake Ordering & Reservation System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+One Expo project, two experiences:
 
-## Get started
+| Where it runs | Who uses it | What they see |
+|---|---|---|
+| **Mobile app** (Expo Go / Android / iOS) | Customers | Browse cakes, cake builder, upload design, pay, pick up time, track orders |
+| **Web** (`npx expo start --web`) | Bakery / Admin | Dashboard, production board, payments, pickups, cakes, customers |
 
-1. Install dependencies
+The role comes from `profiles.role` in Supabase. A customer who logs in on the web (or an admin on the phone) gets a short message instead of the wrong screens.
 
-   ```bash
-   npm install
-   ```
+## 1. Set up Supabase
+1. Create a project at supabase.com.
+2. **SQL Editor → New query**, paste `supabase/schema.sql`, click **Run**.
+3. **Project Settings → API**: copy the *Project URL* and the *anon public* key.
+4. Optional while testing: **Authentication → Providers → Email → turn off "Confirm email"**.
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+## 2. Install and configure
 ```bash
-npm run reset-project
+npx expo install @supabase/supabase-js @react-native-async-storage/async-storage \
+  react-native-url-polyfill base64-arraybuffer expo-image-picker expo-font \
+  @expo-google-fonts/inter @expo-google-fonts/playfair-display @expo/vector-icons
+
+cp .env.example .env      # then paste your URL + anon key into .env
+npx expo start
 ```
+Press `w` for the admin web portal, or scan the QR code with Expo Go for the customer app.
+Never put the `service_role` key in this project.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 3. Create the first admin
+1. Supabase → **Authentication → Users → Add user** (tick "Auto Confirm User"), e.g. `bakery@purpleyam.com`.
+2. **SQL Editor**, run:
+   ```sql
+   update public.profiles set role = 'admin' where email = 'bakery@purpleyam.com';
+   ```
+3. Open the web portal and sign in with that account.
 
-### Other setup steps
+## 4. Things to edit
+- `assets/images/logo.png` – replace the placeholder with the real Purple Yam logo.
+- `src/constants/bakery.ts` – GCash number, bank details, address, pickup hours, prep days.
+- Cake photos – in the web portal, **Cakes → Edit → Image link**.
+- Pricing rules – `src/lib/pricing.ts` **and** the `set_order_amounts()` function in the SQL must match. The database is the one that decides the real price.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Project map
+```
+src/app/
+  index.tsx                 entry gate (web = admin, mobile = customer)
+  (auth)/                   welcome, login (mobile + web versions), register
+  (customer)/(tabs)/        home, builder, orders, profile
+  (customer)/               upload, summary, payment, schedule, notifications, order/[id]
+  admin/                    dashboard, orders (board) + [id], payments, reservations, cakes, customers
+src/lib/                    supabase client, api queries, pricing, storage helpers
+src/context/                auth + order draft state
+supabase/schema.sql         the full database script
+```
