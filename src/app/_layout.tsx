@@ -12,6 +12,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { PushRegistrar } from '@/components/PushRegistrar';
 import { AuthProvider } from '@/context/AuthContext';
 import { OrderDraftProvider } from '@/context/OrderDraftContext';
 import { colors } from '@/constants/theme';
@@ -38,6 +39,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AuthProvider>
         <OrderDraftProvider>
+          <PushRegistrar />
           <StatusBar style="auto" />
           <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.cream } }} />
         </OrderDraftProvider>

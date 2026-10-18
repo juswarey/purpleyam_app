@@ -8,7 +8,7 @@
     "scheme": "purpleyam",
     "userInterfaceStyle": "light",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/icon.png"
     },
     "android": {
       "package": "com.joshuaurot.purpleyam",
@@ -42,6 +42,14 @@
         "expo-image-picker",
         {
           "photosPermission": "Purple Yam needs your photos so you can attach cake design inspiration and payment proof."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/android-icon-monochrome.png",
+          "color": "#2E0F40",
+          "defaultChannel": "default"
         }
       ],
       "expo-font",

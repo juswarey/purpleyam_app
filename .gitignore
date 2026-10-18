@@ -45,3 +45,4 @@ example
 # env
 .env
 .env.local
+*firebase-adminsdk*.json

@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { unregisterPushAsync } from '@/lib/push';
 import { supabase } from '@/lib/supabase';
 import type { Profile } from '@/lib/types';
 
@@ -69,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { needsConfirmation: !data.session };
       },
       signOut: async () => {
+        await unregisterPushAsync(); // stop alerts for this account on this phone
         await supabase.auth.signOut();
         setProfile(null);
       },

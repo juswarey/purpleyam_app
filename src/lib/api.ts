@@ -1,3 +1,4 @@
+import { toLocalISODate } from './format';
 import { supabase } from './supabase';
 import type {
   AppNotification,
@@ -222,4 +223,14 @@ export async function adminGetCustomers() {
   return check(
     await supabase.from('profiles').select('*').eq('role', 'customer').order('created_at', { ascending: false })
   ) as Profile[];
+}
+
+// Small counts for the admin sidebar badges: orders waiting for review, pickups waiting to be confirmed.
+export async function adminGetNavCounts() {
+  const today = toLocalISODate(new Date());
+  const [orders, pickups] = await Promise.all([
+    supabase.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabase.from('reservations').select('id', { count: 'exact', head: true }).eq('status', 'reserved').gte('pickup_date', today),
+  ]);
+  return { orders: orders.count ?? 0, pickups: pickups.count ?? 0 };
 }
