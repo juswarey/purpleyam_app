@@ -12,9 +12,10 @@ import {
   formatDateTime,
   formatPickupDate,
   formatPickupTime,
+  isAwaitingOnline,
   METHOD_LABEL,
   ORDER_STATUS_LABEL,
-  PAYMENT_RECORD_LABEL,
+  paymentRecordLabel,
   PAYMENT_STATUS_LABEL,
   RESERVATION_LABEL,
   shortId,
@@ -84,7 +85,7 @@ export default function AdminOrderDetail() {
   if (error || !order) return <ErrorText message={error ?? 'Order not found.'} />;
 
   const next = NEXT[order.status];
-  const pendingPayments = (order.payments ?? []).filter((p) => p.payment_status === 'pending').length;
+  const pendingPayments = (order.payments ?? []).filter((p) => p.payment_status === 'pending' && !isAwaitingOnline(p)).length;
 
   return (
     <View>
@@ -181,7 +182,7 @@ export default function AdminOrderDetail() {
                   <Text style={styles.primary}>
                     {peso(p.amount)} · {METHOD_LABEL[p.payment_method]}
                   </Text>
-                  <StatusBadge status={p.payment_status} label={PAYMENT_RECORD_LABEL[p.payment_status]} />
+                  <StatusBadge status={p.payment_status} label={paymentRecordLabel(p)} />
                 </View>
                 <Text style={styles.muted}>
                   {p.reference_number ? `Ref ${p.reference_number} · ` : ''}
@@ -193,7 +194,10 @@ export default function AdminOrderDetail() {
                     <Text style={styles.link}>Open full size</Text>
                   </Pressable>
                 ) : null}
-                {p.payment_status === 'pending' ? (
+                {isAwaitingOnline(p) ? (
+                  <Text style={styles.muted}>Waiting for the customer to finish paying on PayMongo. This updates by itself once they pay.</Text>
+                ) : null}
+                {p.payment_status === 'pending' && !isAwaitingOnline(p) ? (
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     <Button title="Verify payment" small loading={busy} onPress={() => run(() => adminSetPaymentStatus(p.id, 'verified'), 'Payment verified')} />
                     <Button title="Reject" variant="outline" small onPress={() => run(() => adminSetPaymentStatus(p.id, 'rejected'), 'Payment rejected')} />

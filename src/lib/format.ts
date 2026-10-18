@@ -34,7 +34,15 @@ export const METHOD_LABEL: Record<string, string> = {
   cash: 'Cash',
   gcash: 'GCash',
   bank_transfer: 'Bank transfer',
+  paymongo: 'Online (PayMongo)',
 };
+
+// A PayMongo payment stays 'pending' until the customer actually pays on the PayMongo page.
+export const isAwaitingOnline = (p: { payment_method: string; payment_status: string }) =>
+  p.payment_method === 'paymongo' && p.payment_status === 'pending';
+
+export const paymentRecordLabel = (p: { payment_method: string; payment_status: PaymentRecordStatus }) =>
+  isAwaitingOnline(p) ? 'Online payment not completed' : PAYMENT_RECORD_LABEL[p.payment_status];
 
 type Tone = { fg: string; bg: string };
 const neutral: Tone = { fg: colors.muted, bg: '#F1EBF3' };

@@ -7,7 +7,7 @@ import { Card, ErrorText, Loading, StatusBadge } from '@/components/ui';
 import { useAuth } from '@/context/AuthContext';
 import { colors, fonts, radius } from '@/constants/theme';
 import { adminGetOrders, adminGetPayments, adminGetReservations } from '@/lib/api';
-import { formatDate, formatPickupDate, formatPickupTime, ORDER_STATUS_LABEL, shortId, toLocalISODate } from '@/lib/format';
+import { formatDate, isAwaitingOnline, formatPickupDate, formatPickupTime, ORDER_STATUS_LABEL, shortId, toLocalISODate } from '@/lib/format';
 import { peso } from '@/lib/pricing';
 import { useLoad } from '@/lib/useLoad';
 
@@ -25,7 +25,7 @@ export default function Dashboard() {
     const active = data.reservations.filter((r) => r.status === 'reserved' || r.status === 'confirmed');
     return {
       pending: data.orders.filter((o) => o.status === 'pending').length,
-      toVerify: data.payments.filter((p) => p.payment_status === 'pending').length,
+      toVerify: data.payments.filter((p) => p.payment_status === 'pending' && !isAwaitingOnline(p)).length,
       inProduction: data.orders.filter((o) => o.status === 'in_production').length,
       pickupsToday: active.filter((r) => r.pickup_date === today),
       upcoming: active.filter((r) => r.pickup_date >= today).slice(0, 6),

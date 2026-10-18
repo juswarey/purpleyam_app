@@ -11,7 +11,7 @@ export type OrderStatus =
 
 export type PaymentStatus = 'unpaid' | 'partially_paid' | 'paid';
 export type PaymentRecordStatus = 'pending' | 'verified' | 'rejected';
-export type PaymentMethod = 'cash' | 'gcash' | 'bank_transfer';
+export type PaymentMethod = 'cash' | 'gcash' | 'bank_transfer' | 'paymongo';
 export type ReservationStatus = 'reserved' | 'confirmed' | 'completed' | 'cancelled';
 
 export interface Profile {
@@ -56,6 +56,8 @@ export interface Payment {
   payment_status: PaymentRecordStatus;
   reference_number: string | null;
   proof_image_url: string | null;
+  paymongo_session_id?: string | null;
+  paymongo_checkout_url?: string | null;
   created_at: string;
 }
 

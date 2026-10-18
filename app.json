@@ -11,13 +11,17 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.joshuaurot.purpleyam",
       "adaptiveIcon": {
         "backgroundColor": "#2E0F40",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "output": "single",
@@ -40,11 +44,18 @@
           "photosPermission": "Purple Yam needs your photos so you can attach cake design inspiration and payment proof."
         }
       ],
-      "expo-font"
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e2633d6a-e7bb-43a4-809f-e2690d3f2093"
+      }
     }
   }
 }

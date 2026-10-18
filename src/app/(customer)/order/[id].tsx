@@ -14,7 +14,7 @@ import {
   formatPickupTime,
   METHOD_LABEL,
   ORDER_STATUS_LABEL,
-  PAYMENT_RECORD_LABEL,
+  paymentRecordLabel,
   PAYMENT_STATUS_LABEL,
   RESERVATION_LABEL,
   shortId,
@@ -70,7 +70,8 @@ export default function OrderDetail() {
   }
 
   const closed = order.status === 'rejected' || order.status === 'cancelled';
-  const activePayment = (order.payments ?? []).some((p) => p.payment_status !== 'rejected');
+  // A manual payment the bakery is still checking (an unfinished online checkout doesn't count)
+  const waitingForBakery = (order.payments ?? []).some((p) => p.payment_method !== 'paymongo' && p.payment_status === 'pending');
   const reservation = (order.reservations ?? []).find((r) => r.status !== 'cancelled');
   const stepIndex = STEPS.indexOf(order.status);
 
@@ -170,11 +171,11 @@ export default function OrderDetail() {
               <Text style={styles.subText}>
                 {peso(p.amount)} · {METHOD_LABEL[p.payment_method]} · {formatDate(p.created_at)}
               </Text>
-              <StatusBadge status={p.payment_status} label={PAYMENT_RECORD_LABEL[p.payment_status]} />
+              <StatusBadge status={p.payment_status} label={paymentRecordLabel(p)} />
             </View>
           ))}
-          {!closed && !activePayment ? (
-            <Button title="Pay down payment" small onPress={() => router.push({ pathname: '/payment', params: { orderId: order.id } })} />
+          {!closed && order.payment_status !== 'paid' && !waitingForBakery ? (
+            <Button title={order.payment_status === 'unpaid' ? 'Pay down payment' : 'Pay balance'} small onPress={() => router.push({ pathname: '/payment', params: { orderId: order.id } })} />
           ) : null}
         </Card>
 

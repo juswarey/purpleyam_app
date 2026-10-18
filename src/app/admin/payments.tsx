@@ -8,7 +8,7 @@ import { PageHeader, Toast } from '@/components/admin/PageHeader';
 import { Button, Chip, ErrorText, Loading, StatusBadge } from '@/components/ui';
 import { colors, fonts, radius } from '@/constants/theme';
 import { AdminPayment, adminGetPayments, adminSetPaymentStatus } from '@/lib/api';
-import { formatDateTime, METHOD_LABEL, PAYMENT_RECORD_LABEL, shortId } from '@/lib/format';
+import { formatDateTime, isAwaitingOnline, METHOD_LABEL, paymentRecordLabel, shortId } from '@/lib/format';
 import { peso } from '@/lib/pricing';
 import { getSignedUrl } from '@/lib/storage';
 import { useLoad } from '@/lib/useLoad';
@@ -35,7 +35,10 @@ export default function Payments() {
     if (open?.proof_image_url) getSignedUrl('payment-proofs', open.proof_image_url).then(setProof);
   }, [open]);
 
-  const rows = useMemo(() => (data ?? []).filter((p) => filter === 'all' || p.payment_status === filter), [data, filter]);
+  // Unfinished online checkouts aren't waiting for the bakery, so they stay out of "To verify".
+  const matches = (p: AdminPayment, key: string) =>
+    key === 'all' ? true : key === 'pending' ? p.payment_status === 'pending' && !isAwaitingOnline(p) : p.payment_status === key;
+  const rows = useMemo(() => (data ?? []).filter((p) => matches(p, filter)), [data, filter]);
 
   if (loading) return <Loading />;
 
@@ -63,7 +66,7 @@ export default function Payments() {
     { title: 'Amount', width: 110, render: (p) => <Text style={T.primary}>{peso(p.amount)}</Text> },
     { title: 'Method', width: 130, render: (p) => <Text style={T.text}>{METHOD_LABEL[p.payment_method]}</Text> },
     { title: 'Reference', flex: 1, render: (p) => <Text style={T.secondary}>{p.reference_number ?? '—'}</Text> },
-    { title: 'Status', width: 190, render: (p) => <StatusBadge status={p.payment_status} label={PAYMENT_RECORD_LABEL[p.payment_status]} /> },
+    { title: 'Status', width: 190, render: (p) => <StatusBadge status={p.payment_status} label={paymentRecordLabel(p)} /> },
   ];
 
   return (
@@ -73,7 +76,7 @@ export default function Payments() {
         {FILTERS.map((f) => (
           <Chip
             key={f.key}
-            label={`${f.label}${f.key === 'all' ? '' : ` (${(data ?? []).filter((p) => p.payment_status === f.key).length})`}`}
+            label={`${f.label}${f.key === 'all' ? '' : ` (${(data ?? []).filter((p) => matches(p, f.key)).length})`}`}
             selected={filter === f.key}
             onPress={() => setFilter(f.key)}
           />
@@ -100,6 +103,9 @@ export default function Payments() {
             ) : (
               <Text style={styles.muted}>{open.proof_image_url ? 'Loading proof…' : 'No proof image was uploaded.'}</Text>
             )}
+            {isAwaitingOnline(open) ? (
+              <Text style={styles.muted}>The customer hasn’t finished paying on PayMongo. It is verified automatically when they do. Only verify by hand after checking your PayMongo dashboard.</Text>
+            ) : null}
             <ErrorText message={actionError} />
             <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
               {open.payment_status !== 'verified' ? <Button title="Verify payment" small loading={busy} onPress={() => decide('verified')} /> : null}

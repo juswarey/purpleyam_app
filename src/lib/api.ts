@@ -70,6 +70,25 @@ export async function createReservation(input: {
   return check(await supabase.from('reservations').insert(input).select().single()) as Reservation;
 }
 
+// Asks the server (Supabase Edge Function) to create a PayMongo checkout page for this order.
+export async function startOnlinePayment(orderId: string): Promise<{ checkout_url: string }> {
+  const { data, error } = await supabase.functions.invoke('create-paymongo-checkout', {
+    body: { order_id: orderId },
+  });
+  if (error) {
+    let message = error.message;
+    try {
+      const body = await (error as any).context?.json?.();
+      if (body?.error) message = body.error;
+    } catch {
+      // keep the generic message
+    }
+    throw new Error(message);
+  }
+  if (!data?.checkout_url) throw new Error(data?.error ?? 'Could not start the online payment.');
+  return data as { checkout_url: string };
+}
+
 export async function getMyOrders() {
   return check(
     await supabase
