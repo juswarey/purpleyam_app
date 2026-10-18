@@ -1,7 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BackHeader } from '@/components/BackHeader';
@@ -128,6 +128,7 @@ export default function Payment() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <BackHeader title="Payment" onBack={() => router.replace(`/order/${order.id}`)} />
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.amount}>
           <Text style={styles.amountLabel}>{order.payment_status === 'unpaid' ? 'Down payment to send' : 'Balance to pay'}</Text>
@@ -209,6 +210,7 @@ export default function Payment() {
 
         <ErrorText message={error} />
       </ScrollView>
+      </KeyboardAvoidingView>
 
       <View style={styles.footer}>
         {fullyPaid ? (

@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Text, View, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BackHeader } from '@/components/BackHeader';
@@ -35,6 +35,7 @@ export default function UploadDesign() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <BackHeader title="Upload Design" />
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Pressable style={styles.drop} onPress={add}>
           <MaterialCommunityIcons name="cloud-upload-outline" size={34} color={colors.gold} />
@@ -90,6 +91,7 @@ export default function UploadDesign() {
           </View>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
       <View style={styles.footer}>
         <Button title="Continue to Order Summary" onPress={() => router.push('/summary')} />
       </View>

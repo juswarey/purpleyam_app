@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, KeyboardAvoidingView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BackHeader } from '@/components/BackHeader';
@@ -54,6 +54,7 @@ export default function Schedule() {
   return (
     <SafeAreaView style={styles.root} edges={['top']}>
       <BackHeader title="Pickup Schedule" onBack={() => router.replace(`/order/${orderId}`)} />
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <Text style={styles.sub}>
           Cakes need about {BAKERY.prepDays} to prepare, so the earliest pickup is {formatPickupDate(dates[0])}.
@@ -76,6 +77,7 @@ export default function Schedule() {
         <Field label="Notes (optional)" value={notes} onChangeText={setNotes} placeholder="Someone else will pick it up, call before arriving..." multiline />
         <ErrorText message={error} />
       </ScrollView>
+      </KeyboardAvoidingView>
       <View style={styles.footer}>
         <Button title="Reserve pickup" onPress={submit} loading={busy} />
         <Button title="Choose later" variant="ghost" onPress={() => router.replace(`/order/${orderId}`)} />

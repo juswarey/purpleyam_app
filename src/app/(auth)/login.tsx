@@ -58,7 +58,7 @@ export default function Login() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <Image source={require('../../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
           <View style={styles.card}>

@@ -42,7 +42,7 @@ export default function Register() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <Image source={require('../../../assets/images/logo.png')} style={styles.logo} resizeMode="contain" />
           <Text style={styles.title}>Create your account</Text>
