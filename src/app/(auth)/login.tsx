@@ -14,7 +14,7 @@ import { colors, fonts, isWeb } from '@/constants/theme';
  */
 export default function Login() {
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn, resendVerification } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +28,12 @@ export default function Login() {
       await signIn(email, password);
       router.replace('/');
     } catch (e: any) {
+      if (/email not confirmed/i.test(e.message ?? '')) {
+        // Registered but never verified: send a fresh code and open the verify screen.
+        await resendVerification(email).catch(() => {});
+        router.push({ pathname: '/verify-email', params: { email: email.trim() } });
+        return;
+      }
       setError(e.message === 'Invalid login credentials' ? 'Wrong email or password.' : e.message);
     } finally {
       setBusy(false);

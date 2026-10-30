@@ -13,7 +13,10 @@ The role comes from `profiles.role` in Supabase. A customer who logs in on the w
 1. Create a project at supabase.com.
 2. **SQL Editor → New query**, paste `supabase/schema.sql`, click **Run**.
 3. **Project Settings → API**: copy the *Project URL* and the *anon public* key.
-4. Optional while testing: **Authentication → Providers → Email → turn off "Confirm email"**.
+4. **Email verification (customers must enter a 6-digit code):**
+   - **Authentication → Providers → Email → turn ON "Confirm email"**.
+   - **Authentication → Email Templates → Confirm signup**: paste `supabase/templates/confirmation.html` (it must contain `{{ .Token }}`).
+   - **Project Settings → Authentication → SMTP Settings**: set up a custom SMTP (Resend, Brevo, etc.). Supabase's built-in mailer only sends a few emails per hour and only to your team members.
 
 ## 2. Install and configure
 ```bash

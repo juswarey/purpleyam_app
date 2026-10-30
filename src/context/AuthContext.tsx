@@ -11,6 +11,8 @@ interface AuthValue {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (args: { email: string; password: string; fullName: string; phone: string }) => Promise<{ needsConfirmation: boolean }>;
+  verifyEmail: (email: string, code: string) => Promise<void>;
+  resendVerification: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -67,7 +69,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           options: { data: { full_name: fullName.trim(), phone: phone.trim() } },
         });
         if (error) throw error;
+        // With "Confirm email" on, Supabase hides duplicates: it returns a fake user with no identities.
+        if (data.user && (data.user.identities?.length ?? 0) === 0) {
+          throw new Error('This email is already registered. Please log in instead.');
+        }
         return { needsConfirmation: !data.session };
+      },
+      verifyEmail: async (email, code) => {
+        const { error } = await supabase.auth.verifyOtp({ email: email.trim(), token: code.trim(), type: 'signup' });
+        if (error) throw error; // on success Supabase starts a session -> onAuthStateChange picks it up
+      },
+      resendVerification: async (email) => {
+        const { error } = await supabase.auth.resend({ type: 'signup', email: email.trim() });
+        if (error) throw error;
       },
       signOut: async () => {
         await unregisterPushAsync(); // stop alerts for this account on this phone

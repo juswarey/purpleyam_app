@@ -16,20 +16,19 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {
     setError(null);
-    setInfo(null);
     if (!fullName.trim() || !email.trim() || !phone.trim() || !password) return setError('Please fill in every field.');
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) return setError('Enter a valid email address.');
     if (password.length < 6) return setError('Password must be at least 6 characters.');
     if (password !== confirm) return setError('Passwords do not match.');
     setBusy(true);
     try {
       const { needsConfirmation } = await signUp({ email, password, fullName, phone });
       if (needsConfirmation) {
-        setInfo('Account created. Check your email to confirm it, then log in.');
+        router.replace({ pathname: '/verify-email', params: { email: email.trim() } });
       } else {
         router.replace('/');
       }
@@ -53,7 +52,6 @@ export default function Register() {
             <Field label="Password" value={password} onChangeText={setPassword} secureTextEntry placeholder="At least 6 characters" />
             <Field label="Confirm password" value={confirm} onChangeText={setConfirm} secureTextEntry placeholder="Type it again" />
             <ErrorText message={error} />
-            {info ? <Text style={styles.info}>{info}</Text> : null}
             <Button title="Register" onPress={submit} loading={busy} />
           </View>
           <Button title="I already have an account" variant="ghost" onPress={() => router.replace('/login')} style={{ borderWidth: 0 }} />
@@ -69,5 +67,4 @@ const styles = StyleSheet.create({
   logo: { width: 110, height: 110 },
   title: { fontFamily: fonts.serif, fontSize: 26, color: colors.gold, marginBottom: 4 },
   card: { width: '100%', maxWidth: 440, backgroundColor: '#F4EDF3', borderRadius: 18, padding: 18, gap: 12 },
-  info: { fontFamily: fonts.medium, fontSize: 13, color: colors.success, backgroundColor: colors.successBg, padding: 12, borderRadius: 12 },
 });
